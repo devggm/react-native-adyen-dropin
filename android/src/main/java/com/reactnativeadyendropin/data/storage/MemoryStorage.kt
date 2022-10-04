@@ -15,6 +15,10 @@ class MemoryStorage {
     private const val DEFAULT_EXECUTE_THREE_D = true
     private const val DEFAULT_SHOPPER_REFERENCE = "123456"
     private const val DEFAULT_SHOW_DISABLE = false
+    private const val DEFAULT_REFERENCE = "android"
+    private const val DEFAULT_RECURRING_PROCESSING_MODEL = ""
+    private const val DEFAULT_STORE_PAYMENT_METHOD = false
+    private const val DEFAULT_SHOPPER_INTERACTION = ""
 
     // RN module related
     private const val DEFAULT_BASE_URL = "http://localhost:3000/api/"
@@ -32,7 +36,11 @@ class MemoryStorage {
   var allow3DS2: Boolean = DEFAULT_ALLOW_3DS2
   var executeThreeD: Boolean = DEFAULT_EXECUTE_THREE_D
   var shopperReference: String = DEFAULT_SHOPPER_REFERENCE
+  var reference : String = DEFAULT_REFERENCE
   var showRemovePaymentMethodButton: Boolean = DEFAULT_SHOW_DISABLE
+  var recurringProcessingModel:String = DEFAULT_RECURRING_PROCESSING_MODEL
+  var storePaymentMethod: Boolean = DEFAULT_STORE_PAYMENT_METHOD
+  var shopperInteraction: String = DEFAULT_SHOPPER_INTERACTION
 
   // RN module related
   var baseUrl: String = DEFAULT_BASE_URL

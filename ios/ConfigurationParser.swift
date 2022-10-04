@@ -60,6 +60,7 @@ struct ConfigurationParser {
             nextConfig.paymentMethodsList.allowDisablingStoredPaymentMethods = showRemovePaymentMethodButton
         }
         
+       
         return nextConfig
     }
 }

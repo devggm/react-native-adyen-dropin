@@ -6,7 +6,10 @@ import com.adyen.checkout.card.data.CardType
 import com.adyen.checkout.components.model.payments.Amount
 import com.adyen.checkout.core.api.Environment
 import com.adyen.checkout.core.util.LocaleUtil
+import com.adyen.checkout.dropin.DropIn
 import com.adyen.checkout.dropin.DropInConfiguration
+import com.adyen.checkout.googlepay.GooglePayConfiguration
+import com.adyen.checkout.googlepay.model.MerchantInfo
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.reactnativeadyendropin.service.AdyenDropInService
@@ -61,6 +64,25 @@ class ConfigurationParser(private val clientKey: String, context: ReactApplicati
     return "${this.context.packageName}_${System.currentTimeMillis()}"
   }
 
+  fun getMerchantInfo (config: ReadableMap): MerchantInfo {
+    if (config.hasKey("paywithgoogle")) {
+      val merchantId = config.getMap("merchantId")
+      val merchantName = config.getMap("merchantName")
+
+      if (merchantId != null && merchantName != null) {
+        val json = JSONObject()
+          .put("merchantId", merchantId)
+          .put("merchantName", merchantName)
+        val serializer = MerchantInfo.SERIALIZER
+
+        return serializer.deserialize(json)
+      }
+    }
+
+    return MerchantInfo()
+
+  }
+
   fun getBoolean(config: ReadableMap?, name: String): Boolean {
     return config !== null && config.hasKey(name) && config.getBoolean(name)
   }
@@ -71,10 +93,17 @@ class ConfigurationParser(private val clientKey: String, context: ReactApplicati
     val amount = this.getAmount(config)
     val shopperReference = this.getShopperReference(config)
     val showRemovePaymentMethodButton = this.getBoolean(config, "showRemovePaymentMethodButton")
+    val merchantInfo = this.getMerchantInfo(config)
 
     val cardConfiguration = CardConfiguration.Builder(shopperLocale, environment, this.clientKey)
       .setShopperReference(shopperReference)
       .setSupportedCardTypes(CardType.MASTERCARD, CardType.VISA)
+
+    val googleConfiguration = GooglePayConfiguration.Builder(shopperLocale, environment, this.clientKey)
+      .setAmount(amount)
+      .setMerchantAccount("DineNow")
+      .setBuilderMerchantInfo(merchantInfo)
+      .setEnvironment(environment)
 
     if (config.getMap("card") != null) {
       cardConfiguration
@@ -92,6 +121,7 @@ class ConfigurationParser(private val clientKey: String, context: ReactApplicati
       .setEnvironment(environment)
       .setAmount(amount)
       .addCardConfiguration(cardConfiguration.build())
+      .addGooglePayConfiguration(googleConfiguration.build())
       .setEnableRemovingStoredPaymentMethods(showRemovePaymentMethodButton)
 
     return builder.build()

@@ -41,6 +41,8 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
   fun setDropInConfig(config: ReadableMap?) {
     Log.d(TAG, "Called setDropInConfig")
 
+    println("config " +  config)
+
     if (config == null) {
       rejectCallback?.invoke("setDropInConfig was called without a config object")
     } else {
@@ -51,6 +53,14 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
 
         if (config.hasKey("shopperReference")) {
           memoryStorage.shopperReference = config.getString("shopperReference")!!
+        }
+
+        if (config.hasKey("merchantAccount")) {
+          memoryStorage.merchantAccount = config.getString("merchantAccount")!!
+        }
+
+        if (config.hasKey("reference")) {
+          memoryStorage.reference = config.getString("reference")!!
         }
 
         if (config.hasKey("amount")) {
@@ -107,6 +117,18 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
         if (config.hasKey("headers")) {
           val map = config.getMap("headers")!!
           memoryStorage.headers = RNUtils.readableMapToStringMap(map)
+        }
+
+        if (config.hasKey("recurringProcessingModel")) {
+          memoryStorage.recurringProcessingModel = config.getString("recurringProcessingModel")!!
+        }
+
+        if (config.hasKey("storePaymentMethod")) {
+          memoryStorage.storePaymentMethod = config.getBoolean("storePaymentMethod")
+        }
+
+        if (config.hasKey("shopperInteraction")) {
+          memoryStorage.shopperInteraction = config.getString("shopperInteraction")!!
         }
 
         if (config.hasKey("queryParameters")) {
@@ -178,7 +200,7 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
 
   @ReactMethod
   fun start(paymentMethodsResponse: ReadableMap, resolveCallback: Callback, rejectCallback: Callback) {
-    Log.d(TAG, "Called start")
+    Log.d(TAG, "Called start " + paymentMethodsResponse)
 
     if (this.dropInConfiguration == null) {
       rejectCallback.invoke("start was called without dropInConfig being set")

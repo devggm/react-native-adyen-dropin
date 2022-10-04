@@ -38,12 +38,12 @@ internal struct PaymentsRequest: Request {
     
     internal func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-
+        
         let amount = data.amount
         let storage = MemoryStorage.current
         
         try container.encode(data.paymentMethod.encodable, forKey: .details)
-        try container.encode(data.storePaymentMethod, forKey: .storePaymentMethod)
+//        try container.encode(data.storePaymentMethod, forKey: .storePaymentMethod)
         try container.encodeIfPresent(data.shopperName, forKey: .shopperName)
         try container.encodeIfPresent(data.emailAddress, forKey: .shopperEmail)
         try container.encodeIfPresent(data.telephoneNumber, forKey: .telephoneNumber)
@@ -58,6 +58,10 @@ internal struct PaymentsRequest: Request {
         try container.encode(storage.countryCode, forKey: .countryCode)
         try container.encode(storage.returnUrl, forKey: .returnUrl)
         try container.encode(storage.shopperReference, forKey: .shopperReference)
+        try container.encode(storage.reference, forKey: .reference)
+        try container.encodeIfPresent(storage.recurringProcessingModel, forKey:.recurringProcessingModel)
+        try container.encode(storage.storePaymentMethod, forKey: .storePaymentMethod)
+        try container.encodeIfPresent(storage.shopperInteraction, forKey: .shopperInteraction)
         try container.encode(storage.getAdditionalData(), forKey: .additionalData)
         try container.encodeIfPresent(storage.merchantAccount, forKey: .merchantAccount)
         try container.encodeIfPresent(data.order?.compactOrder, forKey: .order)
@@ -85,6 +89,8 @@ internal struct PaymentsRequest: Request {
         case socialSecurityNumber
         case order
         case installments
+        case recurringProcessingModel
+        case shopperInteraction
     }
     
 }
@@ -150,7 +156,7 @@ internal struct PaymentsResponse: Response {
     internal let resultCode: ResultCode
     
     internal let action: Action?
-
+    
     internal let order: PartialPaymentOrder?
     
     internal let refusalReason: String?
@@ -169,7 +175,7 @@ internal struct PaymentsResponse: Response {
         self.resultCode = try container.decode(ResultCode.self, forKey: .resultCode)
         self.action = try container.decodeIfPresent(Action.self, forKey: .action)
         self.order = try container.decodeIfPresent(PartialPaymentOrder.self, forKey: .order)
-     
+        
         self.refusalReason = try container.decodeIfPresent(String.self, forKey: .refusalReason)
         self.refusalReasonCode = try container.decodeIfPresent(String.self, forKey: .refusalReasonCode)
         self.additionalData = try container.decodeIfPresent(AdditionalData.self, forKey: .additionalData)

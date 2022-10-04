@@ -22,7 +22,7 @@ class AdyenDropInModule: NSObject {
     
     @objc
     static func requiresMainQueueSetup() -> Bool {
-      return true
+        return true
     }
     
     func resolve(_ arg: Any) {
@@ -53,6 +53,10 @@ class AdyenDropInModule: NSObject {
         
         if let shopperReference = config?["shopperReference"] as? String {
             MemoryStorage.current.shopperReference = shopperReference
+        }
+        
+        if let reference = config?["reference"] as? String {
+            MemoryStorage.current.reference = reference
         }
         
         if let countryCode = config?["countryCode"] as? String {
@@ -105,13 +109,29 @@ class AdyenDropInModule: NSObject {
             MemoryStorage.current.disableNativeRequests = disableNativeRequests
         }
         
+        
+        if let storePaymentMethod = config?["storePaymentMethod"] as? Bool {
+            MemoryStorage.current.storePaymentMethod = storePaymentMethod
+        }
+        
+        
+        if let recurringProcessingModel = config?["recurringProcessingModel"] as? String {
+            MemoryStorage.current.recurringProcessingModel = recurringProcessingModel
+        }
+        
+        
+        if let shopperInteraction = config?["shopperInteraction"] as? String {
+            MemoryStorage.current.shopperInteraction = shopperInteraction
+        }
+        
+        
         if let headers = config?["headers"] as? [String: String] {
             MemoryStorage.current.headers = headers
         }
-
+        
         if let queryParameters = config?["queryParameters"] as? [String: String] {
             var arr = [URLQueryItem]()
-
+            
             for (key, value) in queryParameters {
                 arr.append(URLQueryItem(name: key, value: value))
             }
@@ -153,7 +173,7 @@ class AdyenDropInModule: NSObject {
         guard paymentResponse != nil else {
             return
         }
-
+        
         do {
             let response = try AdyenDropInModule.decodeResponse(paymentResponse!)
             self.handleAsyncResponse(response)
@@ -169,7 +189,7 @@ class AdyenDropInModule: NSObject {
         guard detailsResponse != nil else {
             return
         }
-
+        
         do {
             let response = try AdyenDropInModule.decodeResponse(detailsResponse!)
             self.handleAsyncResponse(response)
@@ -194,7 +214,7 @@ class AdyenDropInModule: NSObject {
                     self.finish(with: result)
                 }
             }
-
+            
         case .cancelled, .error, .refused:
             DispatchQueue.main.async {
                 self.finish(with: result)
@@ -257,7 +277,7 @@ class AdyenDropInModule: NSObject {
     internal func finish(with response: PaymentsResponse) {
         let success = response.resultCode == .authorised || response.resultCode == .received || response.resultCode == .pending
         currentComponent?.finalizeIfNeeded(with: success)
-
+        
         presenter?.dismiss(animated: true) { [weak self] in
             print("Dismiss successfully")
             
@@ -274,7 +294,7 @@ class AdyenDropInModule: NSObject {
     internal func finish(with resultCode: ResultCode) {
         let success = resultCode == .authorised || resultCode == .received || resultCode == .pending
         currentComponent?.finalizeIfNeeded(with: success)
-
+        
         presenter?.dismiss(animated: true) { [weak self] in
             print("Dismiss successfully")
             
@@ -287,10 +307,10 @@ class AdyenDropInModule: NSObject {
             }
         }
     }
-
+    
     internal func finish(with error: Error) {
         currentComponent?.finalizeIfNeeded(with: false)
-
+        
         presenter?.dismiss(animated: true) { [weak self] in
             if let componentError = error as? ComponentError {
                 switch componentError {
@@ -314,10 +334,10 @@ class AdyenDropInModule: NSObject {
                         let str = String(data: jsonObject, encoding: .utf8)
                         self?.reject(str as Any)
                     } else {
-                    // If couldn't create JSON object, send just the message string
+                        // If couldn't create JSON object, send just the message string
                         self?.reject((paymentsErrorResponse.message ?? paymentsErrorResponse.refusalReason ?? error.localizedDescription) as Any)
                     }
-                // Finished with refused etc
+                    // Finished with refused etc
                 } else if let jsonObject = try? JSONEncoder().encode(paymentsErrorResponse) {
                     let str = String(data: jsonObject, encoding: .utf8)
                     self?.resolve(str as Any)
@@ -343,14 +363,14 @@ class AdyenDropInModule: NSObject {
             finish(with: error)
         }
     }
-
+    
     private func handle(_ action: Action) {
         (currentComponent as? DropInComponent)?.handle(action)
     }
 }
 
 extension AdyenDropInModule: DropInComponentDelegate {
-
+    
     internal func didSubmit(_ data: PaymentComponentData, for paymentMethod: PaymentMethod, from component: DropInComponent) {
         if self.onSubmitCallback != nil {
             self.onSubmitCallback?([[
@@ -372,7 +392,7 @@ extension AdyenDropInModule: DropInComponentDelegate {
         let request = PaymentsRequest(headers: headers, queryParameters: queryParameters, path: path, data: data)
         apiClient?.perform(request, completionHandler: paymentResponseHandler)
     }
-
+    
     internal func didProvide(_ data: ActionComponentData, from component: DropInComponent) {
         // We need to disable user interaction while processing payments, because otherwise
         // it might be possible to start another payment while waiting.
@@ -405,20 +425,20 @@ extension AdyenDropInModule: DropInComponentDelegate {
         )
         apiClient?.perform(request, completionHandler: paymentResponseHandler)
     }
-
+    
     internal func didComplete(from component: DropInComponent) {
         finish(with: .authorised)
     }
-
+    
     internal func didFail(with error: Error, from component: DropInComponent) {
         finish(with: error)
     }
-
+    
     internal func didCancel(component: PaymentComponent, from dropInComponent: DropInComponent) {
         // Handle the event when the user closes a PresentableComponent.
         print("User did close: \(component.paymentMethod.name)")
     }
-
+    
 }
 
 extension AdyenDropInModule: StoredPaymentMethodsDelegate {
@@ -441,10 +461,10 @@ extension AdyenDropInModule: StoredPaymentMethodsDelegate {
 }
 
 extension Encodable {
-
+    
     var dictionary: [String: Any]? {
         guard let data = try? JSONEncoder().encode(self) else { return nil }
         return (try? JSONSerialization.jsonObject(with: data, options: .allowFragments)).flatMap { $0 as? [String: Any] }
     }
-
+    
 }

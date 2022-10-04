@@ -27,6 +27,8 @@ class MemoryStorage {
     
     var shopperReference: String? = nil
     
+    var reference: String? = nil
+    
     var countryCode: String? = nil
     
     var shopperLocale: String = Locale.current.identifier
@@ -38,6 +40,12 @@ class MemoryStorage {
     var returnUrl: String?
 
     var merchantAccount: String?
+    
+    var recurringProcessingModel:String?
+    
+    var storePaymentMethod: Bool = false
+    
+    var shopperInteraction: String?
     
     func getAdditionalData() -> [String: Bool] {
         return ["allow3DS2": allow3DS2, "executeThreeD": executeThreeD]
