@@ -39,7 +39,7 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
 
   @ReactMethod
   fun setDropInConfig(config: ReadableMap?) {
-    Log.d(TAG, "Called setDropInConfig")
+//    Log.d(TAG, "Called setDropInConfig")
 
     println("config " +  config)
 
@@ -83,8 +83,8 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
           memoryStorage.executeThreeD = additionalData.getBoolean("executeThreeD")
         }
       } catch (err: Error) {
-        Log.d(TAG, "Error in setDropInConfiguration - ${err.message}")
-        Log.e(TAG, err.toString())
+//        Log.d(TAG, "Error in setDropInConfiguration - ${err.message}")
+//        Log.e(TAG, err.toString())
         rejectCallback?.invoke(err.message)
       }
     }
@@ -92,7 +92,7 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
 
   @ReactMethod
   fun setModuleConfig(config: ReadableMap?) {
-    Log.d(TAG, "Called setModuleConfig")
+//    Log.d(TAG, "Called setModuleConfig")
 
     if (config == null) {
       rejectCallback?.invoke("setModuleConfig was called without a config object")
@@ -155,7 +155,7 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
           }
         }
       } catch (err: Error) {
-        Log.d(TAG, "Error in setModuleConfig - ${err.message}")
+//        Log.d(TAG, "Error in setModuleConfig - ${err.message}")
         Log.e(TAG, err.toString())
         rejectCallback?.invoke("Failed to set module config. Check the config object values and that its types are correct. ${err.message}")
       }
@@ -164,19 +164,19 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
 
   @ReactMethod
   fun setSubmitCallback(callback: Callback?) {
-    Log.d(TAG, "Called setSubmitCallback")
+//    Log.d(TAG, "Called setSubmitCallback")
     memoryStorage.onSubmitCallback = callback
   }
 
   @ReactMethod
   fun setAdditionalDetailsCallback(callback: Callback?) {
-    Log.d(TAG, "Called setAdditionalDetailsCallback")
+//    Log.d(TAG, "Called setAdditionalDetailsCallback")
     memoryStorage.onAdditionalDetailsCallback = callback
   }
 
   @ReactMethod
   fun setPaymentResponse(paymentResponse: ReadableMap?) {
-    Log.d(TAG, "Called setPaymentResponse")
+//    Log.d(TAG, "Called setPaymentResponse")
     if (paymentResponse == null) return
 
     try {
@@ -188,7 +188,7 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
 
   @ReactMethod
   fun setDetailsResponse(detailsResponse: ReadableMap?) {
-    Log.d(TAG, "Called setDetailsResponse")
+//    Log.d(TAG, "Called setDetailsResponse")
     if (detailsResponse == null) return
 
     try {
@@ -200,7 +200,7 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
 
   @ReactMethod
   fun start(paymentMethodsResponse: ReadableMap, resolveCallback: Callback, rejectCallback: Callback) {
-    Log.d(TAG, "Called start " + paymentMethodsResponse)
+//    Log.d(TAG, "Called start " + paymentMethodsResponse)
 
     if (this.dropInConfiguration == null) {
       rejectCallback.invoke("start was called without dropInConfig being set")
@@ -220,29 +220,29 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
   }
 
   fun handleError(reason: String?) {
-    Log.d(TAG, "handleError - ${reason}")
+//    Log.d(TAG, "handleError - ${reason}")
     this.rejectCallback?.invoke(reason)
   }
 
   fun handleCancelled() {
-    Log.d(TAG, "handleCancelled")
+//    Log.d(TAG, "handleCancelled")
     this.rejectCallback?.invoke("Cancelled")
   }
 
   fun handleFinished(result: String) {
-    Log.d(TAG, "handleFinished - ${result}")
+//    Log.d(TAG, "handleFinished - ${result}")
     this.resolveCallback?.invoke(result)
   }
 
   override fun onActivityResult(activity: Activity?, requestCode: Int, resultCode: Int, data: Intent?) {
-    Log.d(TAG, "onActivityResult - ${activity}, ${requestCode}, ${resultCode}, ${data}")
+//    Log.d(TAG, "onActivityResult - ${activity}, ${requestCode}, ${resultCode}, ${data}")
 
     val dropInResult = DropIn.handleActivityResult(requestCode, resultCode, data) ?: return
     when (dropInResult) {
       is DropInResult.Error -> handleError(dropInResult.reason)
       is DropInResult.CancelledByUser -> handleCancelled()
       is DropInResult.Finished -> {
-        Log.d(TAG, "dropInResult - ${dropInResult.result}")
+//        Log.d(TAG, "dropInResult - ${dropInResult.result}")
 
         try {
           val json = JSONObject(dropInResult.result)
@@ -252,7 +252,7 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
              handleFinished(dropInResult.result)
           }
         } catch (err: Error) {
-          Log.e(TAG, err.message ?: "Unknown parsing error")
+//          Log.e(TAG, err.message ?: "Unknown parsing error")
           handleFinished(dropInResult.result)
         }
       }
@@ -260,6 +260,6 @@ class AdyenDropInModule(private val reactContext : ReactApplicationContext): Rea
   }
 
   override fun onNewIntent(intent: Intent?) {
-    Log.d(TAG, "onNewIntent - ${intent}")
+//    Log.d(TAG, "onNewIntent - ${intent}")
   }
 }

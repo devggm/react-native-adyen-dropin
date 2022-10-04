@@ -39,7 +39,7 @@ class AdyenDropInService : DropInService() {
 
         fun handleAsyncResponse(response: ReadableMap) {
             val resultCode = response.getString("resultCode")
-            Log.d(TAG, "handleAsyncResponse - ${resultCode}")
+//            Log.d(TAG, "handleAsyncResponse - ${resultCode}")
 
             when (resultCode) {
                 "Authorised",
@@ -78,7 +78,7 @@ class AdyenDropInService : DropInService() {
         paymentComponentState: PaymentComponentState<*>,
         paymentComponentJson: JSONObject
     ) {
-        Log.d(TAG, "onPaymentsCallRequested")
+//        Log.d(TAG, "onPaymentsCallRequested")
 
         if (!memoryStorage.disableNativeRequests) {
             super.onPaymentsCallRequested(paymentComponentState, paymentComponentJson)
@@ -100,7 +100,7 @@ class AdyenDropInService : DropInService() {
         actionComponentData: ActionComponentData,
         actionComponentJson: JSONObject
     ) {
-        Log.d(TAG, "onDetailsCallRequested")
+//        Log.d(TAG, "onDetailsCallRequested")
 
         if (!memoryStorage.disableNativeRequests) {
             super.onDetailsCallRequested(actionComponentData, actionComponentJson)
@@ -118,7 +118,7 @@ class AdyenDropInService : DropInService() {
     }
 
     override fun makePaymentsCall(paymentComponentJson: JSONObject): DropInServiceResult {
-        Log.d(TAG, "makePaymentsCall " + paymentComponentJson)
+//        Log.d(TAG, "makePaymentsCall " + paymentComponentJson)
 
         // Check out the documentation of this method on the parent DropInService class
         val paymentRequest = createPaymentRequest(
@@ -135,7 +135,7 @@ class AdyenDropInService : DropInService() {
             memoryStorage.recurringProcessingModel,
         )
 
-        Log.d(TAG, "paymentComponentJson - \"${paymentComponentJson.toStringPretty()}\"")
+//        Log.d(TAG, "paymentComponentJson - \"${paymentComponentJson.toStringPretty()}\"")
 
         val requestBody = paymentRequest.toString().toRequestBody(CONTENT_TYPE)
 
@@ -153,7 +153,7 @@ class AdyenDropInService : DropInService() {
     }
 
     override fun makeDetailsCall(actionComponentJson: JSONObject): DropInServiceResult {
-        Log.d(TAG, "makeDetailsCall - \"${actionComponentJson.toStringPretty()}\"")
+//        Log.d(TAG, "makeDetailsCall - \"${actionComponentJson.toStringPretty()}\"")
 
         val requestBody = actionComponentJson.toString().toRequestBody(CONTENT_TYPE)
 
@@ -174,7 +174,7 @@ class AdyenDropInService : DropInService() {
         storedPaymentJSON: JSONObject
     ) {
         launch(Dispatchers.IO) {
-            Log.d(TAG, "removeStoredPaymentMethod")
+//            Log.d(TAG, "removeStoredPaymentMethod")
 
             val url = "${memoryStorage.baseUrl}${memoryStorage.disableStoredPaymentMethodEndpoint}"
 
@@ -199,13 +199,13 @@ class AdyenDropInService : DropInService() {
 
     @Suppress("NestedBlockDepth")
     private fun handlePaymentResponse(call: Call<ResponseBody>): DropInServiceResult {
-        Log.d(TAG, "handlePaymentResponse")
+//        Log.d(TAG, "handlePaymentResponse")
         return try {
             val response = call.execute()
 
             val byteArray = response.errorBody()?.bytes()
             if (byteArray != null) {
-                Log.e(TAG, "errorBody - ${String(byteArray)}")
+//                Log.e(TAG, "errorBody - ${String(byteArray)}")
             }
 
             if (response.isSuccessful) {
@@ -217,14 +217,14 @@ class AdyenDropInService : DropInService() {
                     DropInServiceResult.Finished(detailsResponse.toStringPretty())
                 }
             } else {
-                Log.e(TAG, "FAILED - ${response.message()}")
+//                Log.e(TAG, "FAILED - ${response.message()}")
                 val jsonString = byteArray?.decodeToString() ?: "{ message: ${response.message()} }"
-                println("FAILED details " + response)
+//                println("FAILED details " + response)
                 val detailsResponse = JSONObject(jsonString)
                 DropInServiceResult.Finished(detailsResponse.toStringPretty())
             }
         } catch (e: IOException) {
-            Log.e(TAG, "IOException", e)
+//            Log.e(TAG, "IOException", e)
             DropInServiceResult.Error(reason = "IOException")
         }
     }
@@ -233,19 +233,19 @@ class AdyenDropInService : DropInService() {
         call: Call<ResponseBody>,
         id: String
     ): RecurringDropInServiceResult {
-        Log.d(AdyenDropInService.TAG, "handleDisableResponse")
+//        Log.d(AdyenDropInService.TAG, "handleDisableResponse")
         return try {
             val response = call.execute()
 
             val byteArray = response.errorBody()?.bytes()
             if (byteArray != null) {
-                Log.e(TAG, "errorBody - ${String(byteArray)}")
+//                Log.e(TAG, "errorBody - ${String(byteArray)}")
             }
 
             if (response.isSuccessful) {
                 val responseJSON = JSONObject(response.body()?.string() ?: "{}")
 
-                Log.d(TAG, "Response - ${responseJSON.toStringPretty()}")
+//                Log.d(TAG, "Response - ${responseJSON.toStringPretty()}")
 
                 when (val responseCode = responseJSON.getStringOrNull("response")) {
                     "[detail-successfully-disabled]" -> RecurringDropInServiceResult.PaymentMethodRemoved(
@@ -257,11 +257,11 @@ class AdyenDropInService : DropInService() {
                     )
                 }
             } else {
-                Log.e(TAG, "FAILED - ${response.message()}")
+//                Log.e(TAG, "FAILED - ${response.message()}")
                 RecurringDropInServiceResult.Error(reason = response.message())
             }
         } catch (e: IOException) {
-            Log.e(TAG, "IOException", e)
+//            Log.e(TAG, "IOException", e)
             RecurringDropInServiceResult.Error(reason = "IOException")
         }
     }

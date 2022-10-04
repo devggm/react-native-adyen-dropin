@@ -35,7 +35,7 @@ class AdyenDropInModule: NSObject {
     
     @objc
     func setDropInConfig(_ config: NSDictionary?) {
-        print("Called setDropInConfig")
+//        print("Called setDropInConfig")
         
         if (config == nil) {
             reject("setDropInConfig was called without a config object")
@@ -91,7 +91,7 @@ class AdyenDropInModule: NSObject {
     
     @objc
     func setModuleConfig(_ config: NSDictionary?) {
-        print("Called setModuleConfig")
+//        print("Called setModuleConfig")
         
         guard let baseUrl = config?["baseUrl"] as? String else {
             reject("setModuleConfig missing baseUrl")
@@ -156,19 +156,19 @@ class AdyenDropInModule: NSObject {
     
     @objc
     func setSubmitCallback(_ onSubmit: @escaping RCTResponseSenderBlock) {
-        print("Called setSubmitCallback")
+//        print("Called setSubmitCallback")
         self.onSubmitCallback = onSubmit
     }
     
     @objc
     func setAdditionalDetailsCallback(_ onAdditionalDetails: @escaping RCTResponseSenderBlock) {
-        print("Called setAdditionalDetailsCallback")
+//        print("Called setAdditionalDetailsCallback")
         self.onAdditionalDetailsCallback = onAdditionalDetails
     }
     
     @objc
     func setPaymentResponse(_ paymentResponse: NSDictionary?) {
-        print("Called setPaymentResponse")
+//        print("Called setPaymentResponse")
         
         guard paymentResponse != nil else {
             return
@@ -178,13 +178,13 @@ class AdyenDropInModule: NSObject {
             let response = try AdyenDropInModule.decodeResponse(paymentResponse!)
             self.handleAsyncResponse(response)
         } catch let err {
-            print(err.localizedDescription)
+//            print(err.localizedDescription)
         }
     }
     
     @objc
     func setDetailsResponse(_ detailsResponse: NSDictionary?) {
-        print("Called setDetailsResponse")
+//        print("Called setDetailsResponse")
         
         guard detailsResponse != nil else {
             return
@@ -194,7 +194,7 @@ class AdyenDropInModule: NSObject {
             let response = try AdyenDropInModule.decodeResponse(detailsResponse!)
             self.handleAsyncResponse(response)
         } catch let err {
-            print(err.localizedDescription)
+//            print(err.localizedDescription)
         }
     }
     
@@ -224,7 +224,7 @@ class AdyenDropInModule: NSObject {
     
     @objc
     func start(_ paymentMethodsResponse: NSDictionary, resolveCallback: @escaping RCTResponseSenderBlock, rejectCallback: @escaping RCTResponseSenderBlock) {
-        print("Called start")
+//        print("Called start")
         
         if (dropInConfiguration == nil) {
             reject("start was called without dropInConfig being set")
@@ -279,14 +279,14 @@ class AdyenDropInModule: NSObject {
         currentComponent?.finalizeIfNeeded(with: success)
         
         presenter?.dismiss(animated: true) { [weak self] in
-            print("Dismiss successfully")
+//            print("Dismiss successfully")
             
             do {
                 let jsonObject = try JSONEncoder().encode(response)
                 let str = String(data: jsonObject, encoding: .utf8)
                 self?.resolve(str as Any)
             } catch let err {
-                print(err.localizedDescription)
+//                print(err.localizedDescription)
             }
         }
     }
@@ -296,14 +296,14 @@ class AdyenDropInModule: NSObject {
         currentComponent?.finalizeIfNeeded(with: success)
         
         presenter?.dismiss(animated: true) { [weak self] in
-            print("Dismiss successfully")
+//            print("Dismiss successfully")
             
             do {
                 let jsonObject = try JSONEncoder().encode(["resultCode": resultCode.rawValue])
                 let str = String(data: jsonObject, encoding: .utf8)
                 self?.resolve(str as Any)
             } catch let err {
-                print(err.localizedDescription)
+//                print(err.localizedDescription)
             }
         }
     }
@@ -385,7 +385,7 @@ extension AdyenDropInModule: DropInComponentDelegate {
             return
         }
         
-        print("User did start: \(paymentMethod.name)")
+//        print("User did start: \(paymentMethod.name)")
         let headers = MemoryStorage.current.headers
         let queryParameters = MemoryStorage.current.queryParameters
         let path = MemoryStorage.current.makePaymentEndpoint
@@ -397,7 +397,7 @@ extension AdyenDropInModule: DropInComponentDelegate {
         // We need to disable user interaction while processing payments, because otherwise
         // it might be possible to start another payment while waiting.
         // Details: https://github.com/Adyen/adyen-ios/issues/714
-        print("Disabling user interaction")
+//        print("Disabling user interaction")
         currentComponent?.viewController.view.isUserInteractionEnabled = false
         
         if self.onAdditionalDetailsCallback != nil {
@@ -436,7 +436,7 @@ extension AdyenDropInModule: DropInComponentDelegate {
     
     internal func didCancel(component: PaymentComponent, from dropInComponent: DropInComponent) {
         // Handle the event when the user closes a PresentableComponent.
-        print("User did close: \(component.paymentMethod.name)")
+//        print("User did close: \(component.paymentMethod.name)")
     }
     
 }
