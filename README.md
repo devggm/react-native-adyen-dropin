@@ -15,7 +15,7 @@ React Native bridge for Adyen drop-in
 ## Installation
 
 ```sh
-yarn add @ancon/react-native-adyen-dropin
+yarn add @devggm/react-native-adyen-dropin
 ```
 
 ### Android
@@ -159,6 +159,7 @@ async function handlePress() {
       showRemovePaymentMethodButton: config.showRemovePaymentMethodButton,
       // Optional, required for recurring payments/saved payment method
       shopperReference: config.shopperReference,
+      reference: 'AnyUniqueValue',
     });
 
     // Fetch payment methods
