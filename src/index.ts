@@ -23,6 +23,19 @@ export type ApplePayConfiguration = {
   };
 };
 
+export type GooglePayConfiguration = {
+  /** Label to show instead of "Total" */
+  label?: string;
+  amount?: Amount;
+  configuration?: {
+    /** Name to be displayed on the form */
+    merchantName?: string;
+    /** Your Apple merchant identifier */
+    merchantId: string;
+    gatewayMerchantId: string;
+  };
+};
+
 export type DropInConfiguration = {
   clientKey: string;
   environment: 'test' | 'live';
@@ -31,9 +44,14 @@ export type DropInConfiguration = {
   merchantAccount?: string;
   card?: CardConfiguration;
   applePay?: ApplePayConfiguration;
+  paywithgoogle?: GooglePayConfiguration;
   returnUrl?: string;
   shopperReference?: string;
   showRemovePaymentMethodButton?: boolean;
+  storePaymentMethod?: boolean;
+  recurringProcessingModel?: string;
+  shopperInteraction?: string;
+  reference?: string;
 };
 
 export type ModuleConfig = {
