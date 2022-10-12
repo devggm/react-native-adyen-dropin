@@ -51,6 +51,10 @@ class AdyenDropInModule: NSObject {
         
         MemoryStorage.current.clientKey = clientKey
         
+        if let minAmount = config?["minAmount"] as? [String: Int] {
+            MemoryStorage.current.minAmount = minAmount
+        }
+        
         if let shopperReference = config?["shopperReference"] as? String {
             MemoryStorage.current.shopperReference = shopperReference
         }
@@ -65,6 +69,12 @@ class AdyenDropInModule: NSObject {
         
         if let shopperLocale = config?["shopperLocale"] as? String {
             MemoryStorage.current.shopperLocale = shopperLocale
+        }
+        
+        if let amountData = config?["amount"] as? NSDictionary {
+            if let emailAddress = amountData["emailAddress"] as? String {
+                MemoryStorage.current.shopperEmail = emailAddress
+            }
         }
         
         if let additionalData = config?["additionalData"] as? NSDictionary {
@@ -385,7 +395,10 @@ extension AdyenDropInModule: DropInComponentDelegate {
             return
         }
         
-//        print("User did start: \(paymentMethod.name)")
+        print("User did start: \(paymentMethod.name)")
+        
+        MemoryStorage.current.paymentType = paymentMethod.type
+
         let headers = MemoryStorage.current.headers
         let queryParameters = MemoryStorage.current.queryParameters
         let path = MemoryStorage.current.makePaymentEndpoint

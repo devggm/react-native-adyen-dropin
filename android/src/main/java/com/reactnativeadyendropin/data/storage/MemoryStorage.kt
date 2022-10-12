@@ -3,6 +3,8 @@ package com.reactnativeadyendropin.data.storage
 import com.adyen.checkout.components.model.payments.Amount
 import com.facebook.react.bridge.Callback
 import com.reactnativeadyendropin.data.api.model.paymentsRequest.AdditionalData
+import org.json.JSONObject
+import java.util.*
 
 class MemoryStorage {
   companion object {
@@ -19,6 +21,7 @@ class MemoryStorage {
     private const val DEFAULT_RECURRING_PROCESSING_MODEL = ""
     private const val DEFAULT_STORE_PAYMENT_METHOD = false
     private const val DEFAULT_SHOPPER_INTERACTION = ""
+    private const val DEFAULT_SHOPPER_EMAIL = ""
 
     // RN module related
     private const val DEFAULT_BASE_URL = "http://localhost:3000/api/"
@@ -36,11 +39,14 @@ class MemoryStorage {
   var allow3DS2: Boolean = DEFAULT_ALLOW_3DS2
   var executeThreeD: Boolean = DEFAULT_EXECUTE_THREE_D
   var shopperReference: String = DEFAULT_SHOPPER_REFERENCE
-  var reference : String = DEFAULT_REFERENCE
+  var reference: String = DEFAULT_REFERENCE
   var showRemovePaymentMethodButton: Boolean = DEFAULT_SHOW_DISABLE
-  var recurringProcessingModel:String = DEFAULT_RECURRING_PROCESSING_MODEL
+  var recurringProcessingModel: String = DEFAULT_RECURRING_PROCESSING_MODEL
   var storePaymentMethod: Boolean = DEFAULT_STORE_PAYMENT_METHOD
   var shopperInteraction: String = DEFAULT_SHOPPER_INTERACTION
+  var minAmount = JSONObject()
+  var paymentType: String = ""
+  var shopperEmail: String = DEFAULT_SHOPPER_EMAIL
 
   // RN module related
   var baseUrl: String = DEFAULT_BASE_URL
@@ -57,7 +63,12 @@ class MemoryStorage {
   fun getAmount(): Amount {
     val amount = Amount()
 
-    amount.value = this.amountValue
+    if (minAmount.length() != 0) {
+      amount.value = minAmount.getInt(paymentType)
+    } else {
+      amount.value = this.amountValue
+    }
+
     amount.currency = this.amountCurrency
 
     return amount

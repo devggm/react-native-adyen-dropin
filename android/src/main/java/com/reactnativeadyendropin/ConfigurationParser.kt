@@ -18,112 +18,148 @@ import java.util.*
 
 class ConfigurationParser(private val clientKey: String, context: ReactApplicationContext) {
 
-  private val context: Context = context
+    private val context: Context = context
 
-  private fun getShopperLocale(config: ReadableMap): Locale {
-    val providedShopperLocale = config.getString("shopperLocale")
+    private fun getShopperLocale(config: ReadableMap): Locale {
+        val providedShopperLocale = config.getString("shopperLocale")
 
-    if (providedShopperLocale != null) {
-      return LocaleUtil.fromLanguageTag(providedShopperLocale)
+        if (providedShopperLocale != null) {
+            return LocaleUtil.fromLanguageTag(providedShopperLocale)
+        }
+
+        return Locale.getDefault()
     }
 
-    return Locale.getDefault()
-  }
+    private fun getEnvironment(config: ReadableMap): Environment {
+        val environmentName = config.getString("environment")
 
-  private fun getEnvironment(config: ReadableMap): Environment {
-    val environmentName = config.getString("environment")
-
-    return when (environmentName) {
-      "test" -> Environment.TEST
-      "live" -> Environment.EUROPE
-      else -> Environment.TEST
-    }
-  }
-
-  private fun getAmount(config: ReadableMap): Amount {
-    val map = config.getMap("amount")
-    val value = map?.getInt("value") as? Int
-    val currencyCode = map?.getString("currencyCode") as? String
-    if (value != null && currencyCode != null) {
-      val json = JSONObject()
-        .put("value", value)
-        .put("currency", currencyCode)
-      val serializer = Amount.SERIALIZER
-
-      return serializer.deserialize(json)
+        return when (environmentName) {
+            "test" -> Environment.TEST
+            "live" -> Environment.EUROPE
+            else -> Environment.TEST
+        }
     }
 
-    return Amount()
-  }
+    private fun getAmount(config: ReadableMap): Amount {
+        val map = config.getMap("amount")
+        val value = map?.getInt("value") as? Int
+        val currencyCode = map?.getString("currencyCode") as? String
+        if (value != null && currencyCode != null) {
+            val json = JSONObject()
+                .put("value", value)
+                .put("currency", currencyCode)
+            val serializer = Amount.SERIALIZER
 
-  fun getShopperReference(config: ReadableMap): String {
-    if (config.hasKey("shopperReference")) {
-      return config.getString("shopperReference")!!
+            return serializer.deserialize(json)
+        }
+
+        return Amount()
     }
 
-    return "${this.context.packageName}_${System.currentTimeMillis()}"
-  }
+    private fun getGoogleAmount(config: ReadableMap): Amount {
+        if (config.hasKey("paywithgoogle")) {
+            val googlePayConfig = config.getMap("paywithgoogle")
+            val map = googlePayConfig?.getMap("amount")
+            val value = map?.getInt("value") as? Int
+            val currencyCode = map?.getString("currencyCode") as? String
+            if (value != null && currencyCode != null) {
+                val json = JSONObject()
+                    .put("value", value)
+                    .put("currency", currencyCode)
+                val serializer = Amount.SERIALIZER
 
-  fun getMerchantInfo (config: ReadableMap): MerchantInfo {
-    if (config.hasKey("paywithgoogle")) {
-      val merchantId = config.getMap("merchantId")
-      val merchantName = config.getMap("merchantName")
+                return serializer.deserialize(json)
+            }
+        }
 
-      if (merchantId != null && merchantName != null) {
-        val json = JSONObject()
-          .put("merchantId", merchantId)
-          .put("merchantName", merchantName)
-        val serializer = MerchantInfo.SERIALIZER
-
-        return serializer.deserialize(json)
-      }
+        return Amount()
     }
 
-    return MerchantInfo()
+    fun getShopperReference(config: ReadableMap): String {
+        if (config.hasKey("shopperReference")) {
+            return config.getString("shopperReference")!!
+        }
 
-  }
-
-  fun getBoolean(config: ReadableMap?, name: String): Boolean {
-    return config !== null && config.hasKey(name) && config.getBoolean(name)
-  }
-
-  fun parse(config: ReadableMap): DropInConfiguration {
-    val shopperLocale = this.getShopperLocale(config)
-    val environment = this.getEnvironment(config)
-    val amount = this.getAmount(config)
-    val shopperReference = this.getShopperReference(config)
-    val showRemovePaymentMethodButton = this.getBoolean(config, "showRemovePaymentMethodButton")
-    val merchantInfo = this.getMerchantInfo(config)
-
-    val cardConfiguration = CardConfiguration.Builder(shopperLocale, environment, this.clientKey)
-      .setShopperReference(shopperReference)
-      .setSupportedCardTypes(CardType.MASTERCARD, CardType.VISA)
-
-    val googleConfiguration = GooglePayConfiguration.Builder(shopperLocale, environment, this.clientKey)
-      .setAmount(amount)
-      .setMerchantAccount("DineNow")
-      .setBuilderMerchantInfo(merchantInfo)
-      .setEnvironment(environment)
-
-    if (config.getMap("card") != null) {
-      cardConfiguration
-        .setHolderNameRequired(getBoolean(config.getMap("card"), "showsHolderNameField"))
-        .setShowStorePaymentField(getBoolean(config.getMap("card"), "showsStorePaymentMethodField"))
-        .setHideCvc(!getBoolean(config.getMap("card"), "showsSecurityCodeField"))
+        return "${this.context.packageName}_${System.currentTimeMillis()}"
     }
 
-    val builder = DropInConfiguration.Builder(
-      this.context,
-      AdyenDropInService::class.java,
-      this.clientKey
-    )
-      .setShopperLocale(shopperLocale)
-      .setEnvironment(environment)
-      .setAmount(amount)
-      .addCardConfiguration(cardConfiguration.build())
-      .addGooglePayConfiguration(googleConfiguration.build())
-      .setEnableRemovingStoredPaymentMethods(showRemovePaymentMethodButton)
+    fun getMerchantAccount(config: ReadableMap): String {
+        if (config.hasKey("merchantAccount")) {
+            return config.getString("merchantAccount")!!
+        }
 
-    return builder.build()
-  }
+        return ""
+    }
+
+    fun getMerchantInfo(config: ReadableMap): MerchantInfo {
+        if (config.hasKey("paywithgoogle")) {
+            val merchantId = config.getMap("merchantId")
+            val merchantName = config.getMap("merchantName")
+
+            if (merchantId != null && merchantName != null) {
+                val json = JSONObject()
+                    .put("merchantId", merchantId)
+                    .put("merchantName", merchantName)
+                val serializer = MerchantInfo.SERIALIZER
+
+                return serializer.deserialize(json)
+            }
+        }
+
+        return MerchantInfo()
+
+    }
+
+    fun getBoolean(config: ReadableMap?, name: String): Boolean {
+        return config !== null && config.hasKey(name) && config.getBoolean(name)
+    }
+
+    fun parse(config: ReadableMap): DropInConfiguration {
+        val shopperLocale = this.getShopperLocale(config)
+        val environment = this.getEnvironment(config)
+        val amount = this.getAmount(config)
+        val googlePayAmount = this.getGoogleAmount(config)
+        val shopperReference = this.getShopperReference(config)
+        val showRemovePaymentMethodButton = this.getBoolean(config, "showRemovePaymentMethodButton")
+        val merchantInfo = this.getMerchantInfo(config)
+        val merchantAccount = this.getMerchantAccount(config)
+
+        val cardConfiguration =
+            CardConfiguration.Builder(shopperLocale, environment, this.clientKey)
+                .setShopperReference(shopperReference)
+//                .setSupportedCardTypes(CardType.MASTERCARD, CardType.VISA)
+
+        val googleConfiguration =
+            GooglePayConfiguration.Builder(shopperLocale, environment, this.clientKey)
+                .setAmount(googlePayAmount)
+                .setMerchantAccount(merchantAccount)
+                .setBuilderMerchantInfo(merchantInfo)
+                .setEnvironment(environment)
+
+        if (config.getMap("card") != null) {
+            cardConfiguration
+                .setHolderNameRequired(getBoolean(config.getMap("card"), "showsHolderNameField"))
+                .setShowStorePaymentField(
+                    getBoolean(
+                        config.getMap("card"),
+                        "showsStorePaymentMethodField"
+                    )
+                )
+                .setHideCvc(!getBoolean(config.getMap("card"), "showsSecurityCodeField"))
+        }
+
+        val builder = DropInConfiguration.Builder(
+            this.context,
+            AdyenDropInService::class.java,
+            this.clientKey
+        )
+            .setShopperLocale(shopperLocale)
+            .setEnvironment(environment)
+//            .setAmount(amount)
+            .addCardConfiguration(cardConfiguration.build())
+            .addGooglePayConfiguration(googleConfiguration.build())
+            .setEnableRemovingStoredPaymentMethods(showRemovePaymentMethodButton)
+
+        return builder.build()
+    }
 }

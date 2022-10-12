@@ -1,6 +1,6 @@
 {
   "name": "@devggm/react-native-adyen-dropin",
-  "version": "3.2.1",
+  "version": "3.2.3",
   "description": "React Native bridge for Adyen drop-in",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

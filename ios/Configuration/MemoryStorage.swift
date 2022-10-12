@@ -31,6 +31,10 @@ class MemoryStorage {
     
     var countryCode: String? = nil
     
+    var amountValue: Int = 0
+    
+    var amountCurrency: String = "EUR"
+    
     var shopperLocale: String = Locale.current.identifier
     
     var allow3DS2: Bool = true
@@ -47,6 +51,12 @@ class MemoryStorage {
     
     var shopperInteraction: String?
     
+    var paymentType: String? = ""
+    
+    var minAmount:  [String: Int]? = nil
+    
+    var shopperEmail: String?
+
     func getAdditionalData() -> [String: Bool] {
         return ["allow3DS2": allow3DS2, "executeThreeD": executeThreeD]
     }

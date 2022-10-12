@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -103,7 +103,7 @@
 				};
 			};
 			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "AdyenDropin" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (

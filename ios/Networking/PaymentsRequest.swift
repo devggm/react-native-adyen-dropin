@@ -39,13 +39,20 @@ internal struct PaymentsRequest: Request {
     internal func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        let amount = data.amount
+        var amount = data.amount
         let storage = MemoryStorage.current
         
+        
+        if storage.minAmount != nil {
+            amount = Amount(value: (storage.minAmount?[storage.paymentType!])! as Int, currencyCode: storage.amountCurrency)
+        }
+                
+        print("storage.shopperEmail: \(storage.shopperEmail ?? "empty storage.shopperEmail")")
+        
         try container.encode(data.paymentMethod.encodable, forKey: .details)
-//        try container.encode(data.storePaymentMethod, forKey: .storePaymentMethod)
+        //        try container.encode(data.storePaymentMethod, forKey: .storePaymentMethod)
         try container.encodeIfPresent(data.shopperName, forKey: .shopperName)
-        try container.encodeIfPresent(data.emailAddress, forKey: .shopperEmail)
+        try container.encodeIfPresent(storage.shopperEmail, forKey: .shopperEmail)
         try container.encodeIfPresent(data.telephoneNumber, forKey: .telephoneNumber)
         try container.encodeIfPresent(data.billingAddress, forKey: .billingAddress)
         try container.encodeIfPresent(data.deliveryAddress, forKey: .deliveryAddress)
@@ -163,7 +170,13 @@ internal struct PaymentsResponse: Response {
     
     internal let refusalReasonCode: String?
     
+    internal let pspReference: String?
+    
+    internal let merchantReference: String?
+    
     internal let additionalData: AdditionalData?
+    
+    internal let paymentType: String?
     
     internal let errorCode: String?
     
@@ -178,7 +191,10 @@ internal struct PaymentsResponse: Response {
         
         self.refusalReason = try container.decodeIfPresent(String.self, forKey: .refusalReason)
         self.refusalReasonCode = try container.decodeIfPresent(String.self, forKey: .refusalReasonCode)
+        self.pspReference = try container.decodeIfPresent(String.self, forKey: .pspReference)
+        self.merchantReference = try container.decodeIfPresent(String.self, forKey: .merchantReference)
         self.additionalData = try container.decodeIfPresent(AdditionalData.self, forKey: .additionalData)
+        self.paymentType =  MemoryStorage.current.paymentType
         self.errorCode = try container.decodeIfPresent(String.self, forKey: .errorCode)
         self.message = try container.decodeIfPresent(String.self, forKey: .message)
     }
@@ -192,6 +208,9 @@ internal struct PaymentsResponse: Response {
         case resultCode
         case action
         case order
+        case merchantReference
+        case pspReference
+        case paymentType
     }
     
 }
@@ -205,6 +224,9 @@ extension PaymentsResponse: Encodable {
         
         try container.encode(refusalReasonCode, forKey: .refusalReasonCode)
         try container.encode(additionalData, forKey: .additionalData)
+        try container.encode(paymentType, forKey: .paymentType)
+        try container.encode(merchantReference, forKey: .merchantReference)
+        try container.encode(pspReference, forKey: .pspReference)
         try container.encode(errorCode, forKey: .errorCode)
         try container.encode(message, forKey: .message)
     }
